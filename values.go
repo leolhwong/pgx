@@ -844,6 +844,27 @@ func (n NullTime) Encode(w *WriteBuf, oid Oid) error {
 	return encodeTime(w, oid, n.Time)
 }
 
+func (n NullTime) MarshalJSON() ([]byte, error) {
+	if n.Valid == false {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(n.Time)
+}
+
+func (n *NullTime) UnmarshalJSON(b []byte) error {
+	if bytes.Equal(b, []byte("null")) {
+		n.Time, n.Valid = time.Time{}, false
+		return nil
+	}
+
+	if err := json.Unmarshal(b, &n.Time); err != nil {
+		return err
+	}
+	n.Valid = true
+
+	return nil
+}
+
 // Hstore represents an hstore column. It does not support a null column or null
 // key values (use NullHstore for this). Hstore implements the Scanner and
 // Encoder interfaces so it may be used both as an argument to Query[Row] and a
