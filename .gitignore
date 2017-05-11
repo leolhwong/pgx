@@ -3,6 +3,10 @@
 *.a
 *.so
 
+# Jetbrains
+.idea
+*.iml
+
 # Folders
 _obj
 _test
