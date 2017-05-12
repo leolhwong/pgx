@@ -282,6 +282,28 @@ func (n NullString) Encode(w *WriteBuf, oid Oid) error {
 	return encodeString(w, oid, n.String)
 }
 
+
+func (n NullString) MarshalJSON() ([]byte, error) {
+	if n.Valid == false {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(n.String)
+}
+
+func (n *NullString) UnmarshalJSON(b []byte) error {
+	if bytes.Equal(b, []byte("null")) {
+		n.String, n.Valid = "", false
+		return nil
+	}
+
+	if err := json.Unmarshal(b, &n.String); err != nil {
+		return err
+	}
+	n.Valid = true
+
+	return nil
+}
+
 // AclItem is used for PostgreSQL's aclitem data type. A sample aclitem
 // might look like this:
 //
