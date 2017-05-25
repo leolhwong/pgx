@@ -628,6 +628,11 @@ func (c *Conn) PrepareEx(name, sql string, opts *PrepareExOptions) (ps *Prepared
 		}
 	}
 
+	// https://www.postgresql.org/message-id/CAKFQuwY1KmJ0tQuNVhd%3DGVy4-VQrBVfEaawNxySomBbP7mxRkQ@mail.gmail.com
+	if len(name) > 63 {
+		return nil, fmt.Errorf("Identifier length cannot be longer than 63 bytes, received %s", name)
+	}
+
 	if c.shouldLog(LogLevelError) {
 		defer func() {
 			if err != nil {

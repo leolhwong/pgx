@@ -3,7 +3,7 @@ package pgx_test
 import (
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx"
+	"github.com/ronaldslc/pgx"
 	"regexp"
 	"strconv"
 )

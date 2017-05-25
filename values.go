@@ -282,7 +282,6 @@ func (n NullString) Encode(w *WriteBuf, oid Oid) error {
 	return encodeString(w, oid, n.String)
 }
 
-
 func (n NullString) MarshalJSON() ([]byte, error) {
 	if n.Valid == false {
 		return json.Marshal(nil)
