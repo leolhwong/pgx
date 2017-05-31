@@ -76,6 +76,7 @@ type PreparedStatement struct {
 	SQL               string
 	FieldDescriptions []FieldDescription
 	ParameterOids     []Oid
+	Identifier        string
 }
 
 // PrepareExOptions is an option struct that can be passed to PrepareEx
@@ -622,15 +623,16 @@ func (c *Conn) Prepare(name, sql string) (ps *PreparedStatement, err error) {
 // name and sql arguments. This allows a code path to PrepareEx and Query/Exec without
 // concern for if the statement has already been prepared.
 func (c *Conn) PrepareEx(name, sql string, opts *PrepareExOptions) (ps *PreparedStatement, err error) {
+
+	// The PREPARE identifier cannot exceed 63 bytes in postgres, and cannot be duplicated.
+	// Use the map length to be the identifier, in most case, the "name" is not empty
+	// it is empty when it run its library function, e.g. Line 457 in query.go, & sendSimpleQuery() function. In this case, use "" as its identifier
+	var identifier string
 	if name != "" {
 		if ps, ok := c.preparedStatements[name]; ok && ps.SQL == sql {
 			return ps, nil
 		}
-	}
-
-	// https://www.postgresql.org/message-id/CAKFQuwY1KmJ0tQuNVhd%3DGVy4-VQrBVfEaawNxySomBbP7mxRkQ@mail.gmail.com
-	if len(name) > 63 {
-		return nil, fmt.Errorf("Identifier length cannot be longer than 63 bytes, received %s", name)
+		identifier = strconv.Itoa(len(c.preparedStatements))
 	}
 
 	if c.shouldLog(LogLevelError) {
@@ -643,7 +645,7 @@ func (c *Conn) PrepareEx(name, sql string, opts *PrepareExOptions) (ps *Prepared
 
 	// parse
 	wbuf := newWriteBuf(c, 'P')
-	wbuf.WriteCString(name)
+	wbuf.WriteCString(identifier)	// write identifier instead of its "name"
 	wbuf.WriteCString(sql)
 
 	if opts != nil {
@@ -661,7 +663,7 @@ func (c *Conn) PrepareEx(name, sql string, opts *PrepareExOptions) (ps *Prepared
 	// describe
 	wbuf.startMsg('D')
 	wbuf.WriteByte('S')
-	wbuf.WriteCString(name)
+	wbuf.WriteCString(identifier)	// write identifier instead of its "name"
 
 	// sync
 	wbuf.startMsg('S')
@@ -673,7 +675,8 @@ func (c *Conn) PrepareEx(name, sql string, opts *PrepareExOptions) (ps *Prepared
 		return nil, err
 	}
 
-	ps = &PreparedStatement{Name: name, SQL: sql}
+	// also include the identifier in the struct
+	ps = &PreparedStatement{Name: name, SQL: sql, Identifier: identifier}
 
 	var softErr error
 
@@ -927,7 +930,7 @@ func (c *Conn) sendPreparedQuery(ps *PreparedStatement, arguments ...interface{}
 	// bind
 	wbuf := newWriteBuf(c, 'B')
 	wbuf.WriteByte(0)
-	wbuf.WriteCString(ps.Name)
+	wbuf.WriteCString(ps.Identifier)	// use identifier to bind the PREPARE identifier instead of its name
 
 	wbuf.WriteInt16(int16(len(ps.ParameterOids)))
 	for i, oid := range ps.ParameterOids {
