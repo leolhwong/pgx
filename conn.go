@@ -645,7 +645,7 @@ func (c *Conn) PrepareEx(name, sql string, opts *PrepareExOptions) (ps *Prepared
 
 	// parse
 	wbuf := newWriteBuf(c, 'P')
-	wbuf.WriteCString(identifier)	// write identifier instead of its "name"
+	wbuf.WriteCString(identifier) // write identifier instead of its "name"
 	wbuf.WriteCString(sql)
 
 	if opts != nil {
@@ -663,7 +663,7 @@ func (c *Conn) PrepareEx(name, sql string, opts *PrepareExOptions) (ps *Prepared
 	// describe
 	wbuf.startMsg('D')
 	wbuf.WriteByte('S')
-	wbuf.WriteCString(identifier)	// write identifier instead of its "name"
+	wbuf.WriteCString(identifier) // write identifier instead of its "name"
 
 	// sync
 	wbuf.startMsg('S')
@@ -930,7 +930,7 @@ func (c *Conn) sendPreparedQuery(ps *PreparedStatement, arguments ...interface{}
 	// bind
 	wbuf := newWriteBuf(c, 'B')
 	wbuf.WriteByte(0)
-	wbuf.WriteCString(ps.Identifier)	// use identifier to bind the PREPARE identifier instead of its name
+	wbuf.WriteCString(ps.Identifier) // use identifier to bind the PREPARE identifier instead of its name
 
 	wbuf.WriteInt16(int16(len(ps.ParameterOids)))
 	for i, oid := range ps.ParameterOids {
