@@ -2,6 +2,10 @@
 
 # Pgx
 
+## Fork Information
+
+This fork adds support for JSON Marshal and Unmarashal with pgx.NullString and pgx.NullTime, it also replaces prepared statement names with an incremented identifier to remove the limitations of having [only 63 characters in prepared statement names](https://www.postgresql.org/message-id/CAKFQuwY1KmJ0tQuNVhd%3DGVy4-VQrBVfEaawNxySomBbP7mxRkQ@mail.gmail.com).
+
 ## V2 Previous Stable
 
 This is the `v2` branch which tracks the previous stable release version. At the moment this is `v2`. New development should use the `v3` branch.
