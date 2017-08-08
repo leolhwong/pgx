@@ -1,3 +1,25 @@
+# Unreleased
+
+## Fixes
+
+* database/sql driver created through stdlib.OpenFromConnPool closes connections when requested by database/sql rather than release to underlying connection pool.
+
+# 2.11.0 (June 5, 2017)
+
+## Fixes
+
+* Fix race with concurrent execution of stdlib.OpenFromConnPool (Terin Stock)
+
+## Features
+
+* .pgpass support (j7b)
+* Add missing CopyFrom delegators to Tx and ConnPool (Jack Christensen)
+* Add ParseConnectionString (James Lawrence)
+
+## Performance
+
+* Optimize HStore encoding (René Kroon)
+
 # 2.10.0 (March 17, 2017)
 
 ## Fixes

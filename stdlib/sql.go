@@ -7,6 +7,13 @@
 //		return err
 //	}
 //
+// Or from a DSN string.
+//
+//	db, err := sql.Open("pgx", "user=postgres password=secret host=localhost port=5432 database=pgx_test sslmode=disable")
+//	if err != nil {
+//		return err
+//	}
+//
 // Or a normal pgx connection pool can be established and the database/sql
 // connection can be created through stdlib.OpenFromConnPool(). This allows
 // more control over the connection process (such as TLS), more control
@@ -49,11 +56,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/jackc/pgx"
 )
 
-var openFromConnPoolCount int
+var (
+	openFromConnPoolCountMu sync.Mutex
+	openFromConnPoolCount   int
+)
 
 // oids that map to intrinsic database/sql types. These will be allowed to be
 // binary, anything else will be forced to text format
@@ -90,7 +101,7 @@ func (d *Driver) Open(name string) (driver.Conn, error) {
 		return &Conn{conn: conn, pool: d.Pool}, nil
 	}
 
-	connConfig, err := pgx.ParseURI(name)
+	connConfig, err := pgx.ParseConnectionString(name)
 	if err != nil {
 		return nil, err
 	}
@@ -115,8 +126,12 @@ func (d *Driver) Open(name string) (driver.Conn, error) {
 // pool connection size must be at least 2.
 func OpenFromConnPool(pool *pgx.ConnPool) (*sql.DB, error) {
 	d := &Driver{Pool: pool}
+
+	openFromConnPoolCountMu.Lock()
 	name := fmt.Sprintf("pgx-%d", openFromConnPoolCount)
 	openFromConnPoolCount++
+	openFromConnPoolCountMu.Unlock()
+
 	sql.Register(name, d)
 	db, err := sql.Open(name, "")
 	if err != nil {
@@ -165,12 +180,12 @@ func (c *Conn) Prepare(query string) (driver.Stmt, error) {
 }
 
 func (c *Conn) Close() error {
+	err := c.conn.Close()
 	if c.pool != nil {
 		c.pool.Release(c.conn)
-		return nil
 	}
 
-	return c.conn.Close()
+	return err
 }
 
 func (c *Conn) Begin() (driver.Tx, error) {

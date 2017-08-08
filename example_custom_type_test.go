@@ -55,7 +55,7 @@ func (p *NullPoint) ScanPgx(vr *pgx.ValueReader) error {
 	return vr.Err()
 }
 
-func (p NullPoint) FormatCode() int16 { return pgx.BinaryFormatCode }
+func (p NullPoint) FormatCode() int16 { return pgx.TextFormatCode }
 
 func (p NullPoint) Encode(w *pgx.WriteBuf, oid pgx.Oid) error {
 	if !p.Valid {
@@ -63,7 +63,7 @@ func (p NullPoint) Encode(w *pgx.WriteBuf, oid pgx.Oid) error {
 		return nil
 	}
 
-	s := fmt.Sprintf("point(%v,%v)", p.X, p.Y)
+	s := fmt.Sprintf("(%v,%v)", p.X, p.Y)
 	w.WriteInt32(int32(len(s)))
 	w.WriteBytes([]byte(s))
 
@@ -98,7 +98,15 @@ func Example_CustomType() {
 		return
 	}
 	fmt.Println(p)
+
+	err = conn.QueryRow("select $1::point", &NullPoint{X: 0.5, Y: 0.75, Valid: true}).Scan(&p)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(p)
 	// Output:
 	// null point
 	// 1.5, 2.5
+	// 0.5, 0.75
 }

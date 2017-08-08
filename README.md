@@ -1,4 +1,10 @@
+[![](https://godoc.org/github.com/jackc/pgx?status.svg)](https://godoc.org/github.com/jackc/pgx)
+
 # Pgx
+
+## V2 Previous Stable
+
+This is the `v2` branch which tracks the previous stable release version. At the moment this is `v2`. New development should use the `v3` branch.
 
 Pgx is a pure Go database connection library designed specifically for
 PostgreSQL. Pgx is different from other drivers such as
