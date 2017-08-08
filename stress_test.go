@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/fake"
-	"github.com/jackc/pgx"
+	"github.com/ronaldslc/pgx"
 )
 
 type execer interface {

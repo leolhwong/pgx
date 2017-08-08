@@ -2,7 +2,7 @@ package pgx_test
 
 import (
 	"fmt"
-	"github.com/jackc/pgx"
+	"github.com/ronaldslc/pgx"
 	"reflect"
 	"strconv"
 	"strings"

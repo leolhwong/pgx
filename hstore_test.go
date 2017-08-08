@@ -1,7 +1,7 @@
 package pgx_test
 
 import (
-	"github.com/jackc/pgx"
+	"github.com/ronaldslc/pgx"
 	"testing"
 )
 

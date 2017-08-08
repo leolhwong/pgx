@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/jackc/pgx"
+	"github.com/ronaldslc/pgx"
 	"os"
 	"time"
 )

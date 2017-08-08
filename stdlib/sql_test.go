@@ -3,8 +3,8 @@ package stdlib_test
 import (
 	"bytes"
 	"database/sql"
-	"github.com/jackc/pgx"
-	"github.com/jackc/pgx/stdlib"
+	"github.com/ronaldslc/pgx"
+	"github.com/ronaldslc/pgx/stdlib"
 	"sync"
 	"testing"
 )
