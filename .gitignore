@@ -26,3 +26,4 @@ _testmain.go
 *.exe
 
 conn_config_test.go
+vendor
